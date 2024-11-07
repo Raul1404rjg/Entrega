@@ -1,0 +1,47 @@
+# Documentación del Simulador de Red de Distribución de Energía
+
+## Descripción del Proyecto
+Este proyecto simula la distribución de energía eléctrica en una red de ciudades conectadas. Utiliza el algoritmo de Dijkstra para encontrar la ruta más eficiente desde una central eléctrica hasta cada ciudad, considerando tanto la distancia como la resistencia de las conexiones. El proyecto también incluye una simulación de pérdidas de energía a lo largo de las rutas.
+
+## Algoritmo Utilizado: Dijkstra
+El algoritmo de Dijkstra es un algoritmo clásico utilizado para encontrar las rutas más cortas en un grafo dirigido y ponderado. En este proyecto, el algoritmo se utiliza para calcular la ruta más eficiente en términos de energía, donde los pesos de las aristas representan una combinación de distancia y resistencia.
+
+### Funcionamiento del Algoritmo
+1. **Inicialización**:
+   - Se inicializa un diccionario `peso_acumulado_min` con infinito (`float('inf')`) para todos los nodos excepto el nodo de inicio, que se establece en 0.
+   - Se utiliza una cola de prioridad (`pq`) para mantener los nodos a ser procesados en orden de menor peso acumulado.
+
+2. **Procesamiento**:
+   - Se extrae el nodo con el menor peso acumulado de la cola de prioridad.
+   - Para cada vecino del nodo actual, se actualizan las distancias y resistencias totales acumuladas hacia los vecinos.
+   - Se calcula un nuevo peso como una combinación lineal de distancia y resistencia ajustadas por factores específicos.
+   - Si este nuevo peso es menor que el peso almacenado previamente para el vecino, se actualiza el peso y se añade el vecino a la cola de prioridad para su procesamiento.
+
+3. **Finalización**:
+   - El algoritmo continúa hasta que se han procesado todos los nodos accesibles desde el nodo de inicio, y se obtienen los pesos mínimos acumulados y los caminos más eficientes.
+
+### Implementación en Python
+```python
+def dijkstra(self, inicio, factor_resistencia=0.1, factor_distancia=0.05):
+    peso_acumulado_min = {nodo: float('inf') for nodo in self.grafo.nodes}
+    peso_acumulado_min[inicio] = 0
+    caminos = {inicio: [inicio]}
+    pq = [(0, 0, inicio)]  # Cola de prioridad que guarda (distancia_total, resistencia_total, nodo)
+
+    while pq:
+        dist, res, nodo_actual = heapq.heappop(pq)
+        for vecino in self.grafo.neighbors(nodo_actual):
+            resistencia = self.grafo[nodo_actual][vecino]['resistencia']
+            distancia = self.grafo[nodo_actual][vecino]['distancia']
+
+            distancia_total = dist + distancia
+            resistencia_total = res + resistencia
+
+            peso = factor_distancia * distancia_total + factor_resistencia * resistencia_total
+
+            if peso < peso_acumulado_min[vecino]:
+                peso_acumulado_min[vecino] = peso
+                heapq.heappush(pq, (distancia_total, resistencia_total, vecino))
+                caminos[vecino] = caminos[nodo_actual] + [vecino]
+
+    return peso_acumulado_min, caminos
