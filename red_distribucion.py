@@ -74,7 +74,7 @@ class RedDistribucion:
 
         sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
         sm.set_array([])
-        cbar = plt.colorbar(sm, label='Energía', ax=plt.gca())
+        
 
         plt.show()
 
